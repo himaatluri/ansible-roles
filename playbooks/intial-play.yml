@@ -1,0 +1,7 @@
+---
+- name: This is an inital commit
+  hosts: localhost
+  gather_facts: yes
+  tasks:
+    - name: print name
+      shell: printf "hima"
