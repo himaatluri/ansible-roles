@@ -10,3 +10,13 @@ localhost ansible_connection=local
 
 [db]
 192.168.32.60
+
+[vgnodes]
+lb
+app
+db
+
+[vgnodes:vars]
+ansible_connection=ssh 
+ansible_user=vagrant 
+ansible_pass=vagrant
