@@ -1,22 +1,10 @@
 [local]
-
 localhost ansible_connection=local
 
 [lb]
-192.168.32.50
+54.165.83.227 
 
-[app]
-192.168.32.55
-
-[db]
-192.168.32.60
-
-[vgnodes]
-lb
-app
-db
-
-[vgnodes:vars]
-ansible_connection=ssh 
-ansible_user=vagrant 
-ansible_pass=vagrant
+[lb:vars]
+ansible_connection=ssh
+ansible_user=ec2-user
+ansible_ssh_private_key_file="/Users/himasagaratluri/Desktop/workspace/himaops-ec2-master-key.pem"
