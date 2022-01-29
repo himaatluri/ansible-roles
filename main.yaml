@@ -1,0 +1,22 @@
+- hosts:
+    - master
+    - nodes
+  become: true
+  tasks:
+    - name: update all packages
+      ansible.builtin.package:
+        name: "*"
+        state: latest
+
+    - name: download k3s
+      command: "curl -sfL https://get.k3s.io > /tmp/setup-k3s.sh"
+    
+    - name: set permissions
+      command: "chmod +x setup-k3s.sh"
+
+    - name: install k3s
+      command: "./setup-k3s.sh"
+
+  roles:
+    - role: k3s-master
+    - role: k3s-node

@@ -1,0 +1,2 @@
+- name: Join to the master
+  command: "k3s agent --server https://pi:6443 --token {{ token }}"

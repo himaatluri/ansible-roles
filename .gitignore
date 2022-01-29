@@ -3,3 +3,4 @@ ansible
 .vagrant
 .pub
 private_key
+.venv
