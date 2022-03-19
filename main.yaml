@@ -1,22 +1,21 @@
-- hosts:
-    - master
-    - nodes
+- name: Common Setup
+  hosts:
+    - all
   become: true
-  tasks:
-    - name: update all packages
-      ansible.builtin.package:
-        name: "*"
-        state: latest
-
-    - name: download k3s
-      command: "curl -sfL https://get.k3s.io > /tmp/setup-k3s.sh"
-    
-    - name: set permissions
-      command: "chmod +x setup-k3s.sh"
-
-    - name: install k3s
-      command: "./setup-k3s.sh"
 
   roles:
+    - role: common
+
+- name: Bootstrap Master
+  hosts:
+    - master
+  
+  roles:
     - role: k3s-master
+
+- name: Bootstrap Node(s)
+  hosts:
+    - nodes
+  
+  roles:
     - role: k3s-node

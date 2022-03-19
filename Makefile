@@ -1,13 +1,9 @@
 .PHONY: ping
 
 ping:
-	ansible master -i inventory/dev.ini \
-		-m ping \
-		-e "ansible_password=$(ANSISSHPASSWD)" \
-		-e "ansible_user=pi"
+	ansible all -i inventory/dev.ini \
+		-m ping
 
 apply:
 	ansible-playbook -i inventory/dev.ini \
-		main.yaml \
-		-e 'ansible_password=$(ANSISSHPASSWD)' \
-		-e "ansible_user=pi"
+		main.yaml
