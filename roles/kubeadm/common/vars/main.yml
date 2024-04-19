@@ -1,0 +1,17 @@
+kubectl_version: "1.29.3-1.1"
+kubeadm_version: "1.29.3-1.1"
+kubelet_version: "1.29.3-1.1"
+containerd_version: "1.6.20~ds1-1+b1"
+
+util_packages:
+  - ca-certificates
+  - curl
+  - gpg
+
+k8s_packages:
+  - kubelet="{{kubelet_version}}"
+  - kubeadm="{{kubeadm_version}}"
+  - kubectl="{{kubectl_version}}"
+
+cri_packages:
+  - containerd="{{containerd_version}}"

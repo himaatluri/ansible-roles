@@ -1,0 +1,32 @@
+---
+- name: Install Utils
+  ansible.builtin.apt_key:
+    name: "{{item}}"
+    state: latest
+  with_items: "{{ util_packages }}"
+
+- name: Add pubKey for k8s registries
+  ansible.builtin.apt_key:
+    keyring: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+    url: https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key
+
+- name: Add Kubernetes APT repository
+  ansible.builtin.apt_repository:
+    filename: /etc/apt/sources.list.d/kubernetes.list
+    repo: 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.29/deb/ /'
+    state: present
+
+- name: Install base CRI packages
+  ansible.builtin.apt_key:
+    name: "{{item}}"
+    state: present
+    allow_change_held_packages: false
+  with_items: "{{ cri_packages }}"
+
+- name: Install base k8s packages
+  ansible.builtin.apt_key:
+    name: "{{item}}"
+    state: present
+    allow_change_held_packages: false
+  with_items: "{{ k8s_packages }}"
+...
