@@ -1,0 +1,14 @@
+- name: install k3s
+  shell: "curl -sfL {{ download_url }} | sh -s - --write-kubeconfig-mode 644"
+  args:
+    chdir: /tmp
+
+- name: k3s service
+  service:
+    name: k3s
+    state: started
+
+- name: set token as variable
+  slurp:
+    src: /var/lib/rancher/k3s/server/token
+  register: node_token
