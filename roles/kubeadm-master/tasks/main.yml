@@ -1,5 +1,0 @@
----
-- name: enable_kernel_modules
-  line_in_file:
-
----

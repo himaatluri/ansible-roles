@@ -1,4 +1,0 @@
-- name: Join to the master
-  shell: "curl -sfL {{ download_url }} | K3S_URL=https://{{ groups['master'][0].ansible_host }}:6443 K3S_TOKEN={{groups['master'][0]['node_token']}} sh -"
-  args:
-    chdir: /tmp
