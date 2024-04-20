@@ -1,0 +1,5 @@
+---
+- name: Join cluster
+  shell:
+    - kubeadm join 
+...
