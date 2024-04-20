@@ -1,5 +1,13 @@
 ---
+- name: check current cluster
+  shell:
+    - kubectl cluster-info
 - name: initialize kubeadm
   shell:
    - kubeadm init --kubernetes-version {{ k8s_run_version }}
+
+- name: generate node token
+  shell:
+   - kubeadm token create --print-join-command --ttl {{ node_token_ttl }}
+  register: node_join_cmd
 ...
