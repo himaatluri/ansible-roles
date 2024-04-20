@@ -1,13 +1,16 @@
 ---
 - name: check current cluster
   shell:
-    - kubectl cluster-info
+    cmd: curl -k https://localhost:6443/healthz
+  register: controlplane_status
+
 - name: initialize kubeadm
-  shell:
-   - kubeadm init --kubernetes-version {{ k8s_run_version }}
+  ansible.builtin.shell:
+    cmd: sudo kubeadm init --kubernetes-version {{ k8s_run_version }}
+  with: controlplane_status.stdout.find("ok") != -1
 
 - name: generate node token
-  shell:
-   - kubeadm token create --print-join-command --ttl {{ node_token_ttl }}
+  ansible.builtin.shell:
+    cmd: sudo kubeadm token create --print-join-command --ttl {{ node_token_ttl }}
   register: node_join_cmd
 ...

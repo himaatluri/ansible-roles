@@ -61,10 +61,20 @@
     persistent: present
   with_items: "{{kernel_modules}}"
 
+- name: ipv4 forward
+  ansible.posix.sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    sysctl_set: true
+
 - name: k8s modules
   template:
     src: modules.conf.j2
     dest: /etc/modules-load.d/k8s.conf
+
+- name: run swapoff
+  ansible.builtin.shell:
+    cmd: sudo swapoff -a
 
 - name: sysctl.d conf
   template:
