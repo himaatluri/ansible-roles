@@ -1,5 +1,7 @@
 # Ansible roles for local
 
+`apt install ansible-core`
+
 ## Instructions
 
 * Set ansible ssh password as env variable
