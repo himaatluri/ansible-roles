@@ -1,7 +1,14 @@
-- name: Common Utils
+- name: Bootstrap k8s cluster
   hosts:
     - all
   become: true
+  become_method: su
+
+  gather_facts: false
+
+  vars:
+    k8s_main_version: "1.29"
+    k8s_run_version: "{{ k8s_main_version }}.1"
 
   roles:
     - role: kubeadm/common
