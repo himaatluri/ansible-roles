@@ -1,3 +1,5 @@
 ---
-
+- name: initialize kubeadm
+  shell:
+   - kubeadm init --kubernetes-version {{ k8s_run_version }}
 ...
