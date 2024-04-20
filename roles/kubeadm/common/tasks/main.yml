@@ -1,8 +1,9 @@
 ---
 - name: Install Utils
-  ansible.builtin.apt_key:
+  ansible.builtin.apt:
     name: "{{item}}"
     state: latest
+    allow_change_held_packages: true
   with_items: "{{ util_packages }}"
 
 - name: Add pubKey for k8s registries
@@ -17,14 +18,14 @@
     state: present
 
 - name: Install base CRI packages
-  ansible.builtin.apt_key:
+  ansible.builtin.apt:
     name: "{{item}}"
     state: present
     allow_change_held_packages: false
   with_items: "{{ cri_packages }}"
 
 - name: Install base k8s packages
-  ansible.builtin.apt_key:
+  ansible.builtin.apt:
     name: "{{item}}"
     state: present
     allow_change_held_packages: false

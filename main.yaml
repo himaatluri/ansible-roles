@@ -1,21 +1,7 @@
-- name: Common Setup
+- name: Common Utils
   hosts:
     - all
   become: true
 
   roles:
-    - role: common
-
-- name: Bootstrap Master
-  hosts:
-    - master
-  
-  roles:
-    - role: k3s-master
-
-- name: Bootstrap Node(s)
-  hosts:
-    - nodes
-  
-  roles:
-    - role: k3s-node
+    - role: kubeadm/common
