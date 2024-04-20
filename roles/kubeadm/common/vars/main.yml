@@ -9,9 +9,13 @@ util_packages:
   - gpg
 
 k8s_packages:
-  - kubelet="{{kubelet_version}}"
-  - kubeadm="{{kubeadm_version}}"
-  - kubectl="{{kubectl_version}}"
+  - "kubelet={{kubelet_version}}"
+  - "kubeadm={{kubeadm_version}}"
+  - "kubectl={{kubectl_version}}"
 
 cri_packages:
-  - containerd="{{containerd_version}}"
+  - "containerd={{containerd_version}}"
+
+kernel_modules:
+  - overlay
+  - br_netfilter

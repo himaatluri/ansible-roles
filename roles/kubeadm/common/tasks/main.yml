@@ -1,33 +1,78 @@
 ---
 - name: Install Utils
-  ansible.builtin.apt:
+  apt:
+    update_cache: "yes"
     name: "{{item}}"
     state: latest
-    allow_change_held_packages: true
   with_items: "{{ util_packages }}"
 
+- name: Add PubKey for CRE registries
+  apt_key:
+    state: present
+    url: https://download.docker.com/linux/debian/gpg
+
+- name: Add Docker registry
+  apt_repository:
+    repo: 'deb https://download.docker.com/linux/debian bookworm stable'
+    state: present
+
 - name: Add pubKey for k8s registries
-  ansible.builtin.apt_key:
+  apt_key:
     keyring: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
-    url: https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key
+    url: https://pkgs.k8s.io/core:/stable:/v{{ k8s_main_version }}/deb/Release.key
+    state: present
 
 - name: Add Kubernetes APT repository
-  ansible.builtin.apt_repository:
+  apt_repository:
     filename: /etc/apt/sources.list.d/kubernetes.list
-    repo: 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.29/deb/ /'
+    repo: 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v{{ k8s_main_version }}/deb/ /'
     state: present
 
 - name: Install base CRI packages
-  ansible.builtin.apt:
+  apt:
+    update_cache: yes
     name: "{{item}}"
     state: present
     allow_change_held_packages: false
+    install_recommends: "yes"
   with_items: "{{ cri_packages }}"
 
 - name: Install base k8s packages
-  ansible.builtin.apt:
+  apt:
+    update_cache: yes
     name: "{{item}}"
     state: present
     allow_change_held_packages: false
+    allow_downgrade: true
   with_items: "{{ k8s_packages }}"
+
+- name: copy containerd config
+  copy:
+    dest: /etc/containerd/config.toml
+    src: containerd.config.toml
+    owner: root
+    group: root
+    mode: u=rw,g=r,o=r
+
+- name: kernel modules
+  community.general.modprobe:
+    name: "{{ item }}"
+    state: present
+    persistent: present
+  with_items: "{{kernel_modules}}"
+
+- name: k8s modules
+  template:
+    src: modules.conf.j2
+    dest: /etc/modules-load.d/k8s.conf
+
+- name: sysctl.d conf
+  template:
+    src: sysctl.d.j2
+    dest: /etc/sysctl.d/k8s.conf
+
+- name: disable swap
+  lineinfile:
+    path: /etc/sysctl.conf
+    line: vm.swapiness = 0
 ...
