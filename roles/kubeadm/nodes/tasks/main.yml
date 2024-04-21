@@ -1,0 +1,14 @@
+---
+- name: Check Node
+  ansible.builtin.command: sudo kubectl get no {{ansible_hostname}} --kubeconfig /etc/kubernetes/kubelet.conf
+  register: node_status
+
+- name: deb join
+  debug:
+    var: "{{node_join_cmd.stdout}}"
+
+- name: Join cluster
+  ansible.builtin.shell:
+    cmd: "sudo {{ node_join_cmd.stdout }}"
+  when: node_status.stdout.find("not found") != -1
+...

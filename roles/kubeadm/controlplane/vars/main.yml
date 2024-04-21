@@ -1,2 +1,0 @@
-k8s_run_version: "1.29.1"
-node_token_ttl: "5m"

@@ -4,3 +4,4 @@ ansible
 .pub
 private_key
 .venv
+.passwd

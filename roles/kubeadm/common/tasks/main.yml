@@ -85,4 +85,10 @@
   lineinfile:
     path: /etc/sysctl.conf
     line: vm.swapiness = 0
+
+- name: Kubelet Status
+  ansible.builtin.service:
+    name: kubelet
+    state: started
+    enabled: true
 ...

@@ -1,4 +1,4 @@
-- name: Bootstrap k8s cluster
+- name: Install commons
   hosts:
     - all
   become: true
@@ -6,9 +6,17 @@
 
   gather_facts: false
 
-  vars:
-    k8s_main_version: "1.29"
-    k8s_run_version: "{{ k8s_main_version }}.1"
-
   roles:
     - role: kubeadm/common
+
+- name: ControlPlane
+  hosts:
+    - controlplane
+  roles:
+    - role: kubeadm/controlplane
+
+- name: Nodes
+  hosts:
+    - nodes
+  roles:
+    - role: kubeadm/nodes

@@ -1,16 +1,21 @@
 ---
-- name: check current cluster
-  shell:
-    cmd: curl -k https://localhost:6443/healthz
+- name: Verify Cluster
+  ansible.builtin.uri:
+    url: https://localhost:6443/healthz
+    validate_certs: false
+    return_content: true
   register: controlplane_status
+  tags: check-cluster-health
 
-- name: initialize kubeadm
-  ansible.builtin.shell:
-    cmd: sudo kubeadm init --kubernetes-version {{ k8s_run_version }}
-  with: controlplane_status.stdout.find("ok") != -1
+- ansible.builtin.debug:
+    var: controlplane_status
+  tags: check-cluster-health
 
-- name: generate node token
-  ansible.builtin.shell:
-    cmd: sudo kubeadm token create --print-join-command --ttl {{ node_token_ttl }}
+- name: Initialize Bootstrap
+  ansible.builtin.shell: sudo kubeadm init --kubernetes-version "{{k8s_run_version}}"
+  when: controlplane_status.content != "ok"
+
+- name: Generate Node token
+  ansible.builtin.command: kubeadm token create --print-join-command --ttl {{node_token_ttl}}
   register: node_join_cmd
 ...
