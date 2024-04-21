@@ -6,6 +6,7 @@
     return_content: true
   register: controlplane_status
   tags: check-cluster-health
+  ignore_errors: true
 
 - ansible.builtin.debug:
     var: controlplane_status
@@ -18,4 +19,9 @@
 - name: Generate Node token
   ansible.builtin.command: kubeadm token create --print-join-command --ttl {{node_token_ttl}}
   register: node_join_cmd
+
+- name: Persist join cmd
+  ansible.builtin.add_host:
+    name: join_cmd
+    cmd: "{{node_join_cmd.stdout}}"
 ...

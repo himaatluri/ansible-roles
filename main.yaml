@@ -4,19 +4,25 @@
   become: true
   become_method: su
 
-  gather_facts: false
+  gather_facts: true
 
   roles:
     - role: kubeadm/common
 
 - name: ControlPlane
+  gather_facts: true
   hosts:
     - controlplane
   roles:
     - role: kubeadm/controlplane
 
 - name: Nodes
+  gather_facts: true
+  become: true
+  become_method: su
   hosts:
     - nodes
+  vars:
+    node_join_cmd: "{{hostvars['join_cmd']['cmd']}}"
   roles:
     - role: kubeadm/nodes
