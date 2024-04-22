@@ -1,5 +1,0 @@
----
-- name: Join cluster
-  ansible.builtin.shell:
-    cmd: "sudo {{ node_join_cmd }}"
-...

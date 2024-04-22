@@ -1,0 +1,19 @@
+---
+- name: Check KubeletConf
+  ansible.builtin.stat:
+    path: /etc/kubernetes/kubelet.conf
+  register: kubelet_conf_stat
+
+- name: Check Node
+  ansible.builtin.command: sudo kubectl get nodes {{ansible_hostname}} --kubeconfig /etc/kubernetes/kubelet.conf
+  register: node_status
+  ignore_errors: true
+  when:
+    - kubelet_conf_stat.stat.exists is true
+
+- name: Join cluster
+  ansible.builtin.shell:
+    cmd: "sudo {{ node_join_cmd }}"
+  when:
+    - kubelet_conf_stat.stat.exists is false
+...
