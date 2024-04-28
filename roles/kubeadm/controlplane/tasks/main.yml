@@ -8,13 +8,26 @@
   tags: check-cluster-health
   ignore_errors: true
 
+- name: Check controller manager conf
+  ansible.builtin.stat:
+    path: /etc/kubernetes/controller-manager.conf
+  register: ctr_mgr_conf
+
+- name: Check scheduler conf
+  ansible.builtin.stat:
+    path: /etc/kubernetes/scheduler.conf
+  register: scheduler_conf
+
 - ansible.builtin.debug:
     var: controlplane_status
   tags: check-cluster-health
 
 - name: Initialize Bootstrap
   ansible.builtin.shell: sudo kubeadm init --kubernetes-version "{{k8s_run_version}}"
-  when: controlplane_status.content != "ok"
+  when:
+    - controlplane_status.content != "ok"
+    - ctr_mgr_conf.stat.exists is false
+    - scheduler_conf.stat.exists is false
 
 - name: Generate Node token
   ansible.builtin.command: kubeadm token create --print-join-command --ttl {{node_token_ttl}}

@@ -84,7 +84,7 @@
 - name: disable swap
   lineinfile:
     path: /etc/sysctl.conf
-    line: vm.swapiness = 0
+    line: vm.swappiness = 0
 
 - name: Kubelet Status
   ansible.builtin.service:
