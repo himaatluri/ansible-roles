@@ -23,6 +23,6 @@
   hosts:
     - nodes
   vars:
-    node_join_cmd: "{{hostvars['join_cmd']['cmd']}}"
+    node_join_cmd: "{{ hostvars['join_cmd']['cmd'] }}"
   roles:
     - role: kubeadm/nodes
