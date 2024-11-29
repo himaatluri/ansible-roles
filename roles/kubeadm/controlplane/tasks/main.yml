@@ -8,13 +8,26 @@
   tags: check-cluster-health
   ignore_errors: true
 
+- name: Check controller manager conf
+  ansible.builtin.stat:
+    path: /etc/kubernetes/controller-manager.conf
+  register: ctr_mgr_conf
+
+- name: Check scheduler conf
+  ansible.builtin.stat:
+    path: /etc/kubernetes/scheduler.conf
+  register: scheduler_conf
+
 - ansible.builtin.debug:
     var: controlplane_status
   tags: check-cluster-health
 
 - name: Initialize Bootstrap
   ansible.builtin.shell: sudo kubeadm init --kubernetes-version "{{k8s_run_version}}"
-  when: controlplane_status.content != "ok"
+  when:
+    - controlplane_status.content != "ok"
+    - ctr_mgr_conf.stat.exists is false
+    - scheduler_conf.stat.exists is false
 
 - name: Generate Node token
   ansible.builtin.command: kubeadm token create --print-join-command --ttl {{node_token_ttl}}
@@ -24,4 +37,29 @@
   ansible.builtin.add_host:
     name: join_cmd
     cmd: "{{node_join_cmd.stdout}}"
+
+- name: Check Admin config
+  ansible.builtin.stat:
+    path: /etc/kubernetes/admin.config
+  register: admin_config
+
+- name: Read Admin config
+  ansible.builtin.slurp:
+    src: /etc/kubernetes/admin.config
+  register: admin_cfg_contents
+  when: admin_config.stat.exists is true
+
+- name: add kube cfg
+  ansible.builtin.blockinfile:
+    path: ~/kube/config
+    append_newline: true
+    prepend_newline: true
+    block: |
+      "{{ admin_cfg_contents['content'] | b64decode }}"
+
+- name: copy kubeconfig
+  ansible.builtin.fetch:
+    src: /etc/kubernetes/admin.config
+    dest: ~/.kube/ansible-cluster-config
+  when: admin_config.stat.exists is true
 ...

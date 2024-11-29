@@ -12,3 +12,7 @@
 ssh-keyscan -H 192.168.87.236 >> ~/.ssh/known_hosts
 ssh-keyscan -H 192.168.87.23 >> ~/.ssh/known_hosts
 ```
+
+```
+ansible-playbook -i inventory/pve.ini all main.yaml -u haops --become-password .passwd
+```

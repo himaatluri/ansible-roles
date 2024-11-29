@@ -1,9 +1,9 @@
 .PHONY: ping
 
 ping:
-	ansible all -i inventory/dev.ini \
+	ansible all -i inventory/pve.ini \
 		-m ping
 
 apply:
-	ansible-playbook -i inventory/dev.ini \
+	ansible-playbook -i inventory/pve.ini \
 		main.yaml
