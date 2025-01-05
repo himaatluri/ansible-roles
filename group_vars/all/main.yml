@@ -1,3 +1,2 @@
-k8s_main_version: "1.29"
-k8s_run_version: "{{ k8s_main_version }}.1"
+k8s_main_version: "1.31"
 node_token_ttl: "9m"
