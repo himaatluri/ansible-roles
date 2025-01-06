@@ -1,0 +1,13 @@
+---
+- name: Set runc permissions
+  ansible.builtin.command: chmod +x /usr/local/sbin/runc
+
+- name: Ensure Runc is executable
+  ansible.builtin.command: chmod +x /usr/local/sbin/runc
+
+- name: Extract Nerdctl
+  ansible.builtin.unarchive:
+    src: /usr/local/bin/nerdctl.tar.gz
+    dest: /usr/local/bin/
+    remote_src: yes
+...

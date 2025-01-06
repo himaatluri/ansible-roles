@@ -1,0 +1,7 @@
+---
+dependencies: []
+galaxy_info:
+  role_name: haops_docker_ce
+  author: hima_atluri
+  description: role to install docker ce
+  company: haops
