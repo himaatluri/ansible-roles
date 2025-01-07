@@ -1,0 +1,25 @@
+- name: Create Volume
+  community.docker.docker_volume:
+    name: "{{ data_volume }}"
+
+- name: Pull Image
+  community.docker.docker_image:
+    name: portainer/portainer-ce:{{ version }}
+    source: pull
+
+# docker run -d -p 8000:8000 -p 9443:9443 
+# --name portainer --restart=always 
+# -v /var/run/docker.sock:/var/run/docker.sock 
+# -v portainer_data:/data portainer/portainer-ce:2.21.5
+- name: Run Container
+  community.docker.docker_container:
+    name: portainer
+    image: portainer/portainer-ce:{{ version }}
+    auto_remove: yes
+    detach: yes
+    published_ports:
+      - 8000:8000
+      - 9443:9443
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "{{ data_volume }}:/data"
