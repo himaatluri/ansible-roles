@@ -1,0 +1,18 @@
+- name: Create Volume
+  community.docker.docker_volume:
+    name: "{{ data_volume }}"
+
+- name: Pull Image
+  community.docker.docker_image:
+    name: "{{ image }}"
+    source: pull
+
+- name: Run Container
+  community.docker.docker_container:
+    name: "{{ service }}"
+    image: "{{ image }}"
+    restart_policy: "always"
+    published_ports:
+      - 4000:3000/tcp
+    volumes:
+      - "{{ data_volume }}:/var/lib/grafana"

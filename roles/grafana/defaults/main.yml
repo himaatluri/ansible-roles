@@ -1,0 +1,4 @@
+service: "grafana"
+version: "11.4.0"
+image: "{{ service }}/{{ service }}-oss:{{ version }}"
+data_volume: "{{ service }}_data"
