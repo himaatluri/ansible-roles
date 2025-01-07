@@ -1,0 +1,68 @@
+- name: Create Volume
+  community.docker.docker_volume:
+    name: "{{ data_volume }}"
+
+- name: Pull Image
+  community.docker.docker_image:
+    name: "{{ image }}"
+    source: pull
+
+- name: Ensure /etc/systemd/resolved.conf.d directory exists
+  file:
+    path: /etc/systemd/resolved.conf.d
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Create adguardhome.conf with DNSStubListener disabled
+  copy:
+    dest: /etc/systemd/resolved.conf.d/adguardhome.conf
+    content: |
+      [Resolve]
+      DNS=127.0.0.1
+      DNSStubListener=no
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Backup existing resolv.conf
+  command: mv /etc/resolv.conf /etc/resolv.conf.backup
+  args:
+    creates: /etc/resolv.conf.backup
+
+- name: Create symlink for new resolv.conf
+  file:
+    src: /run/systemd/resolve/resolv.conf
+    dest: /etc/resolv.conf
+    state: link
+    force: yes
+
+- name: Reload or restart systemd-resolved to apply changes
+  systemd:
+    name: systemd-resolved
+    state: stopped
+    daemon_reload: yes
+
+
+- name: Run Container
+  community.docker.docker_container:
+    name: adguard
+    image: "{{ image }}"
+    restart_policy: "always"
+    network_mode: "host"
+    exposed_ports:
+      - 53:53/tcp
+      - 53:53/udp
+      - 443:443/tcp
+      - 443:443/udp
+      - 3000:3000/tcp
+      - 853:853/tcp
+      - 784:784/udp 
+      - 853:853/udp 
+      - 8853:8853/udp
+      - 5443:5443/tcp
+      - 5443:5443/udp
+    volumes:
+      - "{{ data_volume }}:/opt/adguardhome/work"
+      - "{{ data_volume }}:/opt/adguardhome/conf"
