@@ -1,0 +1,51 @@
+---
+- name: Ensure Prometheus user exists on host
+  ansible.builtin.user:
+    name: "{{ prometheus_user }}"
+    system: yes
+    shell: /usr/sbin/nologin
+  register: prometheus_user_info
+
+- name: Debug Prometheus user info
+  debug:
+    msg: "Prometheus UID: {{ prometheus_user_info.uid }}, GID: {{ prometheus_user_info.group }}"
+
+- name: Ensure Prometheus directories exist with correct ownership
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ prometheus_user }}"
+    group: "{{ prometheus_user }}"
+    mode: '0755'
+  loop:
+    - "{{ prometheus_config_dir }}"
+    - "{{ prometheus_data_dir }}"
+
+- name: Copy Prometheus configuration file with correct permissions
+  template:
+    src: prometheus.yml.j2
+    dest: "{{ prometheus_config_dir }}/prometheus.yml"
+    owner: "{{ prometheus_user }}"
+    group: "{{ prometheus_user }}"
+    mode: '0644'
+
+- name: Pull Prometheus Docker image
+  docker_image:
+    name: "{{ prometheus_docker_image }}"
+    source: pull
+
+- name: Run Prometheus Docker container with host user UID and GID
+  docker_container:
+    name: "{{ prometheus_container_name }}"
+    image: "{{ prometheus_docker_image }}"
+    restart_policy: always
+    ports:
+      - "{{ prometheus_port }}:9090"
+    volumes:
+      - "{{ prometheus_config_dir }}/prometheus.yml:/etc/prometheus/prometheus.yml"
+      - "{{ prometheus_data_dir }}:/prometheus"
+    env:
+      TZ: "UTC"
+    state: started
+    user: "{{ prometheus_user_info.uid }}:{{ prometheus_user_info.group }}"
+...
