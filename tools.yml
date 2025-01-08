@@ -1,5 +1,5 @@
 ---
-- name: Install Docker
+- name: "[~ Build - Tools Server(s) ~]"
   hosts: all
   become: yes
   roles:
@@ -7,3 +7,9 @@
     - portainer
     - ad_guard
     - grafana
+    - node_exporter
+    - prometheus_container
+  vars:
+    prometheus_version: "v3.1.0"
+    node_exporter_version: "1.8.2"
+...
