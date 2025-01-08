@@ -1,0 +1,63 @@
+---
+- name: Ensure node_exporter user exists
+  user:
+    name: "{{ node_exporter_user }}"
+    system: yes
+    shell: /usr/sbin/nologin
+
+- name: Set Node Exporter OS and architecture variables dynamically
+  set_fact:
+    node_exporter_os: "{{ ansible_system | lower }}"
+    node_exporter_arch: >-
+      {%- if ansible_architecture == 'x86_64' -%}
+        amd64
+      {%- elif ansible_architecture == 'aarch64' -%}
+        arm64
+      {%- elif ansible_architecture == 'armv7l' -%}
+        armv7
+      {%- else -%}
+        {{ ansible_architecture }}
+      {%- endif -%}
+
+- name: Ensure Node Exporter install directory exists
+  ansible.builtin.file:
+    path: "{{ node_exporter_install_dir }}"
+    state: directory
+    owner: "{{ node_exporter_user }}"
+    group: "{{ node_exporter_user }}"
+    mode: '0755'
+
+- name: Download Node Exporter archive
+  get_url:
+    url: "https://github.com/prometheus/node_exporter/releases/download/v{{ node_exporter_version }}/node_exporter-{{ node_exporter_version }}.{{ node_exporter_os }}-{{ node_exporter_arch }}.tar.gz"
+    dest: "/tmp/node_exporter.tar.gz"
+    mode: '0644'
+
+- name: Extract Node Exporter
+  ansible.builtin.unarchive:
+    src: "/tmp/node_exporter.tar.gz"
+    dest: "/tmp"
+    remote_src: yes
+
+- name: Move Node Exporter binary to install directory
+  ansible.builtin.copy:
+    src: "/tmp/node_exporter-{{ node_exporter_version }}.{{ node_exporter_os }}-{{ node_exporter_arch }}/node_exporter"
+    dest: "{{ node_exporter_install_dir }}/node_exporter"
+    owner: "{{ node_exporter_user }}"
+    group: "{{ node_exporter_user }}"
+    mode: '0755'
+    remote_src: yes
+
+- name: Create systemd service for Node Exporter
+  template:
+    src: "node_exporter.service.j2"
+    dest: "/etc/systemd/system/node_exporter.service"
+    mode: '0644'
+
+- name: Start and enable Node Exporter service
+  systemd:
+    name: node_exporter
+    enabled: yes
+    state: started
+    daemon_reload: yes
+...
