@@ -1,0 +1,25 @@
+---
+- name: Create Volume
+  community.docker.docker_volume:
+    name: "{{ keycloak_volume }}"
+
+- name: Pull Keycloak Docker image
+  community.docker.docker_image:
+    name: "{{ keycloak_image }}"
+    source: pull
+
+- name: Run Keycloak Docker container
+  community.docker.docker_container:
+    name: "{{ keycloak_container_name }}"
+    image: "{{ keycloak_image }}"
+    state: started
+    restart_policy: unless-stopped
+    ports:
+      - "{{ keycloak_port }}:8080"
+    env:
+      KC_BOOTSTRAP_ADMIN_USERNAME: "{{ keycloak_admin_username }}"
+      KC_BOOTSTRAP_ADMIN_PASSWORD: "{{ keycloak_admin_password }}"
+    volumes:
+      - "{{ keycloak_volume }}:/opt/keycloak/data"
+    command: "start-dev"
+...

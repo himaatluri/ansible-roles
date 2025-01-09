@@ -1,0 +1,10 @@
+# Keycloak Configuration
+keycloak_version: "26.0"
+keycloak_image: "quay.io/keycloak/keycloak:{{ keycloak_version }}"
+keycloak_container_name: "keycloak"
+keycloak_admin_username: "admin"
+keycloak_admin_password: "admin"
+keycloak_volume: "keycloak_data"
+
+# Docker Configuration
+keycloak_port: 8080
