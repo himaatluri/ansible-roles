@@ -1,0 +1,78 @@
+---
+- name: Pull Image
+  community.docker.docker_image:
+    name: "{{ image }}"
+    source: pull
+
+- name: Ensure Pi-hole base directory exists
+  ansible.builtin.file:
+    path: "{{ pihole_base }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Ensure etc-pihole and etc-dnsmasq.d subdirectories exist
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  loop:
+    - "{{ pihole_base }}/etc-pihole"
+    - "{{ pihole_base }}/etc-dnsmasq.d"
+
+- name: Start Pi-hole Docker container
+  community.docker.docker_container:
+    name: pihole
+    image: "{{ pihole_image }}"
+    state: started
+    restart_policy: unless-stopped
+    hostname: "{{ pihole_hostname }}"
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "80:80"
+    env:
+      TZ: "{{ timezone }}"
+      VIRTUAL_HOST: "{{ pihole_hostname }}"
+      PROXY_LOCATION: "{{ pihole_hostname }}"
+      FTLCONF_LOCAL_IPV4: "{{ local_ipv4 }}"
+    volumes:
+      - "{{ pihole_base }}/etc-pihole:/etc/pihole"
+      - "{{ pihole_base }}/etc-dnsmasq.d:/etc/dnsmasq.d"
+    dns_servers:
+      - "127.0.0.1"
+      - "1.1.1.1"
+    healthcheck:
+      test: ["CMD", "dig", "@127.0.0.1", "google.com"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+
+- name: Wait for Pi-hole container to become healthy
+  community.docker.docker_container_info:
+    name: pihole
+  register: pihole_info
+  retries: 20
+  delay: 3
+  until: pihole_info.container.State.Health.Status == "healthy"
+
+- name: Retrieve Pi-hole Admin Password
+  community.docker.docker_container_logs:
+    name: pihole
+  register: pihole_logs
+
+- name: Extract Pi-hole Admin Password
+  ansible.builtin.set_fact:
+    pihole_admin_password: >-
+      {{ pihole_logs.logs | regex_search('password: (.*)', '\\1') | first | default('Password not found') }}
+
+- name: Display Pi-hole Admin URL and Password
+  ansible.builtin.debug:
+    msg:
+      - "Pi-hole Admin URL: http://{{ local_ipv4 }}/admin/"
+      - "Password: {{ pihole_admin_password }}"
+...

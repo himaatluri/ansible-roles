@@ -1,0 +1,7 @@
+version: "2024.07.0"
+image: "pihole/pihole:{{ version }}"
+pihole_base: "{{ lookup('env', 'PIHOLE_BASE') | default(ansible_env.PWD, true) }}"
+pihole_image: "pihole/pihole:latest"
+timezone: "America/Chicago"
+pihole_hostname: "pi.hole"
+local_ipv4: "127.0.0.1"

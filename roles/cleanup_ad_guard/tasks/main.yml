@@ -1,0 +1,41 @@
+---
+- name: Cleanup AdGuard Home Setup
+  tasks:
+    # Stop and remove the AdGuard container
+    - name: Stop and remove Docker container
+      community.docker.docker_container:
+        name: adguard
+        state: absent
+        force_kill: yes
+
+    # Remove Docker volume
+    - name: Remove Docker volume
+      community.docker.docker_volume:
+        name: "{{ data_volume }}"
+        state: absent
+
+    # Remove AdGuard configuration file
+    - name: Remove adguardhome.conf
+      ansible.builtin.file:
+        path: /etc/systemd/resolved.conf.d/adguardhome.conf
+        state: absent
+
+#   # Restore the original resolv.conf backup
+#    - name: Restore original resolv.conf
+      command: mv /etc/resolv.conf.backup /etc/resolv.conf
+      args:
+        removes: /etc/resolv.conf
+#
+#    # Remove /etc/systemd/resolved.conf.d directory if empty
+#    - name: Remove /etc/systemd/resolved.conf.d directory
+      ansible.builtin.file:
+        path: /etc/systemd/resolved.conf.d
+        state: absent
+#
+#   # Reload or restart systemd-resolved
+#   - name: Restart systemd-resolved
+#     ansible.builtin.systemd:
+#       name: systemd-resolved
+#       state: restarted
+#       daemon_reload: yes
+...

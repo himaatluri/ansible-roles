@@ -5,7 +5,8 @@
   roles:
     - docker_ce
     - portainer
-    - ad_guard
+    - cleanup_ad_guard
+    - pihole
     - grafana
     - node_exporter
     - prometheus_container
