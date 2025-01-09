@@ -5,11 +5,11 @@
   roles:
     - docker_ce
     - portainer
-    - cleanup_ad_guard
     - pihole
-    - grafana
+    - keycloak
     - node_exporter
     - prometheus_container
+    - grafana
   vars:
     prometheus_version: "v3.1.0"
     node_exporter_version: "1.8.2"
