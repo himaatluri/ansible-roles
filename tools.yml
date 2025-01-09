@@ -6,10 +6,11 @@
     - docker_ce
     - portainer
     - pihole
-    - keycloak
     - node_exporter
     - prometheus_container
     - grafana
+    - keycloak
+    - traefik
   vars:
     prometheus_version: "v3.1.0"
     node_exporter_version: "1.8.2"

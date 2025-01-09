@@ -1,0 +1,6 @@
+---
+- name: Restart Traefik
+  community.docker.docker_container:
+    name: "{{ traefik_container_name }}"
+    state: restarted
+...

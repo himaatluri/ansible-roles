@@ -7,4 +7,4 @@ keycloak_admin_password: "admin"
 keycloak_volume: "keycloak_data"
 
 # Docker Configuration
-keycloak_port: 8080
+keycloak_port: 8081

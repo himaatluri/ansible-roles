@@ -1,0 +1,11 @@
+# Traefik Configuration
+traefik_version: "v3.3.1"
+traefik_image: "traefik:{{ traefik_version }}"
+traefik_container_name: "traefik"
+traefik_host_ports:
+  - "8088:8088"
+  - "443:443"
+  - "80:80"
+traefik_config_file: "/etc/traefik/traefik.toml"
+traefik_config_template: "traefik.toml.j2"
+traefik_config_dir: "/etc/traefik"

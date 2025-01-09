@@ -1,0 +1,33 @@
+---
+- name: Ensure Traefik configuration directory exists
+  ansible.builtin.file:
+    path: "{{ traefik_config_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Deploy Traefik configuration file
+  ansible.builtin.template:
+    src: "{{ traefik_config_template }}"
+    dest: "{{ traefik_config_file }}"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Pull Traefik Docker image
+  community.docker.docker_image:
+    name: "{{ traefik_image }}"
+    source: pull
+
+- name: Run Traefik Docker container
+  community.docker.docker_container:
+    name: "{{ traefik_container_name }}"
+    image: "{{ traefik_image }}"
+    state: started
+    restart_policy: unless-stopped
+    ports: "{{ traefik_host_ports }}"
+    volumes:
+      - "{{ traefik_config_file }}:/etc/traefik/traefik.toml"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+...
