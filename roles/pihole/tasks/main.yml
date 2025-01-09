@@ -33,7 +33,7 @@
     ports:
       - "53:53/tcp"
       - "53:53/udp"
-      - "80:80"
+      - "4444:80"
     env:
       TZ: "{{ timezone }}"
       VIRTUAL_HOST: "{{ pihole_hostname }}"
@@ -45,34 +45,26 @@
     dns_servers:
       - "127.0.0.1"
       - "1.1.1.1"
-    healthcheck:
-      test: ["CMD", "dig", "@127.0.0.1", "google.com"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 10s
 
-- name: Wait for Pi-hole container to become healthy
-  community.docker.docker_container_info:
-    name: pihole
-  register: pihole_info
-  retries: 20
-  delay: 3
-  until: pihole_info.container.State.Health.Status == "healthy"
+- name: Backup existing resolv.conf
+  ansible.builtin.command:
+    cmd: mv /etc/resolv.conf /etc/resolv.conf.backup
+    creates: /etc/resolv.conf.backup
 
-- name: Retrieve Pi-hole Admin Password
-  community.docker.docker_container_logs:
-    name: pihole
-  register: pihole_logs
+- name: Update resolv.conf to use Pi-hole DNS
+  ansible.builtin.copy:
+    dest: /etc/resolv.conf
+    content: |
+      nameserver {{ host_ip }}
+      nameserver {{ upstream_dns }}
+    owner: root
+    group: root
+    mode: '0644'
 
-- name: Extract Pi-hole Admin Password
-  ansible.builtin.set_fact:
-    pihole_admin_password: >-
-      {{ pihole_logs.logs | regex_search('password: (.*)', '\\1') | first | default('Password not found') }}
-
-- name: Display Pi-hole Admin URL and Password
-  ansible.builtin.debug:
-    msg:
-      - "Pi-hole Admin URL: http://{{ local_ipv4 }}/admin/"
-      - "Password: {{ pihole_admin_password }}"
+# Restart systemd-resolved to apply DNS changes
+- name: Restart systemd-resolved
+  ansible.builtin.systemd:
+    name: systemd-resolved
+    state: restarted
+    daemon_reload: yes
 ...
