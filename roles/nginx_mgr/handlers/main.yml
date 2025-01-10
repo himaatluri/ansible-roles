@@ -1,0 +1,6 @@
+---
+- name: Restart Nginx Proxy Manager
+  community.docker.docker_container:
+    name: "{{ nginx_proxy_mgrcontainer_name }}"
+    state: restarted
+...

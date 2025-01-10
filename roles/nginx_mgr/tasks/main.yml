@@ -1,0 +1,22 @@
+---
+- name: Create Volume
+  community.docker.docker_volume:
+    name: "{{ nginx_proxy_mgr_container_name }}"
+
+- name: Pull nginx_proxy_mgr Docker image
+  community.docker.docker_image:
+    name: "{{ nginx_proxy_mgr_image }}"
+    source: pull
+
+- name: Run nginx_proxy_mgr Docker container
+  community.docker.docker_container:
+    name: "{{ nginx_proxy_mgr_container_name }}"
+    image: "{{ nginx_proxy_mgr_image }}"
+    state: started
+    restart_policy: unless-stopped
+    ports: "{{ nginx_proxy_mgr_host_ports }}"
+    volumes:
+      - "{{ nginx_proxy_mgr_container_name }}:/data"
+      - "./letsencrypt:/etc/letsencrypt"
+
+...

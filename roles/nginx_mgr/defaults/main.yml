@@ -1,0 +1,8 @@
+# Traefik Configuration
+nginx_proxy_mgr_version: "2.12.2"
+nginx_proxy_mgr_image: "jc21/nginx-proxy-manager:{{ nginx_proxy_mgr_version }}"
+nginx_proxy_mgr_container_name: "nginx_pxy_mgr"
+nginx_proxy_mgr_host_ports:
+  - "443:443"
+  - "80:80"
+  - "81:81"
